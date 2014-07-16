@@ -8,8 +8,6 @@
 
 namespace Corcel;
 
-use Illuminate\Database\Eloquent\Model as Eloquent;
-
 class TermRelationship extends Eloquent
 {
     protected $table = 'wp_term_relationships';

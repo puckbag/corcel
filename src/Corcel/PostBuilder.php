@@ -62,9 +62,9 @@ class PostBuilder extends Builder
      * @param int $currentPage
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function paginate($perPage = 10, $currentPage = 1)
-    {
-        $skip = $currentPage * $perPage - $perPage;
-        return $this->skip($skip)->take($perPage)->get();
-    }
+    // public function paginate($perPage = 10, $currentPage = 1)
+    // {
+    //     $skip = $currentPage * $perPage - $perPage;
+    //     return $this->skip($skip)->take($perPage)->get();
+    // }
 }

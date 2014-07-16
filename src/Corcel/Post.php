@@ -8,8 +8,6 @@
 
 namespace Corcel;
 
-use Illuminate\Database\Eloquent\Model as Eloquent;
-
 class Post extends Eloquent
 {
     protected $table = 'wp_posts';
@@ -17,6 +15,15 @@ class Post extends Eloquent
     protected $with = array('meta', 'comments', 'postterms');
     protected $postType = 'post';
 
+
+    protected function _terms($taxonomy)
+    {
+        return Term::select('wp_terms.*')
+            ->join('wp_term_taxonomy','wp_term_taxonomy.term_id','=','wp_terms.term_id')
+            ->join('wp_term_relationships','wp_term_relationships.term_taxonomy_id','=','wp_term_taxonomy.term_taxonomy_id')
+            ->where('wp_term_taxonomy.taxonomy',$taxonomy)
+            ->where('wp_term_relationships.object_id',$this->ID);
+    }
 
     /**
      * Get only those posts which has manually filled excerpts
@@ -77,15 +84,7 @@ class Post extends Eloquent
      **/
     public function tags()
     {
-        $new = $this->postterms->filter(function($term)
-                {
-                    return $term->termtaxonomy->taxonomy == 'post_tag';
-                });
-
-        return  $new->map(function($term)
-                {
-                    return $term->termtaxonomy->term; 
-                });
+        return $this->_terms('post_tag');
     }
 
 
@@ -96,15 +95,7 @@ class Post extends Eloquent
      **/
     public function categories()
     {
-        $new = $this->postterms->filter(function($term)
-                {
-                    return $term->termtaxonomy->taxonomy == 'category';
-                });
-
-        return  $new->map(function($term)
-                {
-                    return $term->termtaxonomy->term; 
-                });
+        return $this->_terms('category');
     }
     
 
@@ -139,6 +130,13 @@ class Post extends Eloquent
      */
     public function __get($key)
     {
+        switch ($key)
+        {
+            case 'tags':
+            case 'categories':
+                return $this->$key()->get();
+        }
+
         if (!isset($this->$key)) {
             return $this->meta->$key;    
         }
